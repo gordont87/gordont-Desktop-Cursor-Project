@@ -49,3 +49,5 @@ next-env.d.ts
 
 /dev.db
 /dev.db-journal
+
+!.env.example
