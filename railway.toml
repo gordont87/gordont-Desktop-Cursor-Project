@@ -1,0 +1,13 @@
+# Railway service config for the Next.js app.
+# In the Railway dashboard also set:
+# - Variables: DATABASE_URL=${{Postgres.DATABASE_URL}}, AUTH_SECRET, optional Maps keys
+# - Pre-deploy Command: npx prisma migrate deploy
+# - Generate a public domain under Settings → Networking
+
+[build]
+builder = "RAILPACK"
+
+[deploy]
+startCommand = "npm run start"
+# Runs before the new deployment goes live (set the same in UI if this is ignored)
+preDeployCommand = "npx prisma migrate deploy"

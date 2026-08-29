@@ -1,0 +1,249 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Owner {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  phone        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  properties Property[]
+  documents  Document[]
+  statements Statement[]
+  listings   RentalListing[]
+}
+
+model Property {
+  id        String   @id @default(cuid())
+  ownerId   String
+  owner     Owner    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name      String
+  address   String
+  city      String
+  state     String
+  zip       String
+  type      String
+  beds      Int
+  baths     Float
+  sqft      Int
+  status    String   @default("Occupied")
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  leases       Lease[]
+  transactions Transaction[]
+  maintenance  MaintenanceRequest[]
+  documents    Document[]
+  inspections  Inspection[]
+}
+
+model Lease {
+  id           String    @id @default(cuid())
+  propertyId   String
+  property     Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  tenantLabel  String
+  monthlyRent  Float
+  startDate    DateTime
+  endDate      DateTime
+  status       String    @default("Active")
+  createdAt    DateTime  @default(now())
+
+  tenant   Tenant?
+  payments RentPayment[]
+}
+
+model Tenant {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  phone        String?
+  leaseId      String   @unique
+  lease        Lease    @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  payments     RentPayment[]
+  maintenance  MaintenanceRequest[]
+  documents    TenantDocument[]
+  resetTokens  PasswordResetToken[]
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  tenantId  String
+  tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model RentPayment {
+  id        String    @id @default(cuid())
+  tenantId  String
+  tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  leaseId   String
+  lease     Lease     @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+  amount    Float
+  dueDate   DateTime
+  status    String    @default("Due")
+  method    String?
+  paidAt    DateTime?
+  note      String?
+  createdAt DateTime  @default(now())
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  date        DateTime
+  type        String
+  category    String
+  amount      Float
+  description String
+  createdAt   DateTime @default(now())
+}
+
+model MaintenanceRequest {
+  id          String   @id @default(cuid())
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  tenantId    String?
+  tenant      Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  title       String
+  description String
+  category    String
+  urgency     String   @default("Normal")
+  status      String   @default("Open")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Document {
+  id         String    @id @default(cuid())
+  ownerId    String
+  owner      Owner     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  propertyId String?
+  property   Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  name       String
+  category   String
+  note       String?
+  createdAt  DateTime  @default(now())
+}
+
+model TenantDocument {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name      String
+  category  String
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+model Statement {
+  id             String   @id @default(cuid())
+  ownerId        String
+  owner          Owner    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  periodLabel    String
+  periodStart    DateTime
+  periodEnd      DateTime
+  totalIncome    Float
+  totalExpenses  Float
+  distribution   Float
+  createdAt      DateTime @default(now())
+}
+
+model Inspection {
+  id         String   @id @default(cuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  date       DateTime
+  type       String
+  summary    String
+  score      String?
+  createdAt  DateTime @default(now())
+}
+
+/// Public available-rental listings shown on /rentals (owner-managed inventory)
+model RentalListing {
+  id             String   @id @default(cuid())
+  ownerId        String?
+  owner          Owner?   @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  slug           String   @unique
+  title          String
+  address        String
+  city           String
+  state          String
+  zip            String
+  rent           Float
+  beds           Int
+  baths          Float
+  sqft           Int
+  type           String
+  pets           String
+  garage         Boolean  @default(false)
+  pool           Boolean  @default(false)
+  available      String
+  amenitiesJson  String   @default("[]")
+  imageUrl       String
+  virtualTourUrl String?
+  lat            Float?
+  lng            Float?
+  status         String   @default("Available")
+  description    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  showingRequests ShowingRequest[]
+}
+
+/// Public “Schedule a Showing” form submissions
+model ShowingRequest {
+  id             String         @id @default(cuid())
+  listingId      String?
+  listing        RentalListing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  listingSlug    String
+  listingTitle   String
+  name           String
+  email          String
+  phone          String
+  preferredTimes String?
+  status         String         @default("New")
+  notes          String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+/// Public rental / investment analysis form leads
+model AnalysisLead {
+  id            String   @id @default(cuid())
+  source        String   @default("website")
+  address       String
+  propertyType  String
+  beds          String
+  baths         String
+  sqft          Int?
+  currentRent   Float?
+  estimateLow   Int?
+  estimateHigh  Int?
+  name          String
+  email         String
+  phone         String
+  status        String   @default("New")
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
