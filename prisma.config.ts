@@ -9,6 +9,7 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    // Placeholder allowed for `prisma generate` when Railway has not injected DATABASE_URL yet.
+    url: process.env["DATABASE_URL"] ?? "postgresql://build:build@127.0.0.1:5432/build",
   },
 });

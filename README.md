@@ -58,16 +58,15 @@ Open [http://localhost:3000](http://localhost:3000).
 1. Push this repo to GitHub.
 2. [Railway](https://railway.app) → **New Project** → **Deploy from GitHub**.
 3. **+ New** → **Database** → **PostgreSQL**.
-4. On the web service → **Variables**:
-   - `DATABASE_URL=${{Postgres.DATABASE_URL}}`
+4. On the web service → **Variables** (required before a successful run):
+   - `DATABASE_URL` → use **Add Reference Variable** and pick Postgres `DATABASE_URL`
    - `AUTH_SECRET=` (long random string)
    - Optional: `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=`
-5. **Settings → Deploy → Pre-deploy Command:** `npx prisma migrate deploy`  
-   (also set in `railway.toml`)
+5. Clear **Settings → Deploy → Pre-deploy Command** if set (migrations run in the start command instead).
 6. After the first successful deploy, open a Railway shell / one-off and run: `npm run db:seed`
 7. **Settings → Networking → Generate Domain**.
 
-Build uses `prisma generate && next build` (standalone). Start command: `npm run start` → `node .next/standalone/server.js`.
+Build: `prisma generate && next build` (standalone). Start: `npx prisma migrate deploy && npm run start`.
 
 Local coding stays on `npm run dev`; push to GitHub to refresh the Railway demo.
 
