@@ -1,14 +1,11 @@
 # Railway service config for the Next.js app.
-# In the Railway dashboard also set:
-# - Variables: DATABASE_URL=${{Postgres.DATABASE_URL}}, AUTH_SECRET, optional Maps keys
-# - Generate a public domain under Settings → Networking
-#
-# Migrations run in the start command (not pre-deploy) so Prisma is available
-# after the Next standalone build and private networking is up.
+# Variables on this service:
+# - DATABASE_URL = reference to Postgres DATABASE_URL (not 127.0.0.1)
+# - AUTH_SECRET = long random string
+# Networking → Generate Domain → target port must match the PORT variable (use 3000)
 
 [build]
 builder = "RAILPACK"
 
 [deploy]
-startCommand = "npx prisma migrate deploy && npm run start"
-# Clear any UI Pre-deploy Command if migrate fails there with "prisma not found"
+startCommand = "sh -c 'npx prisma migrate deploy && HOSTNAME=0.0.0.0 PORT=${PORT:-3000} node .next/standalone/server.js'"
