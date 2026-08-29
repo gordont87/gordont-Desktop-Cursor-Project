@@ -2,6 +2,8 @@ import { requireTenant } from "@/lib/tenant-auth";
 import { redirect } from "next/navigation";
 import { TenantPortalShell } from "@/components/portal/TenantPortalShell";
 
+export const dynamic = "force-dynamic";
+
 export default async function TenantPortalAppLayout({
   children,
 }: {

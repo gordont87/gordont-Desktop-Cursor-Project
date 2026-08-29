@@ -1,21 +1,19 @@
 import { ContentPage, PageHero } from "@/components/layout/PageHero";
 import { Button } from "@/components/ui/Button";
 import { Card, Container, Section } from "@/components/ui/Section";
-import { getAllListingSlugs, getListingBySlug } from "@/lib/listings";
+import { getListingBySlug } from "@/lib/listings";
 import { formatCurrency } from "@/lib/utils";
 import { Bath, BedDouble, Calendar, MapPin, Ruler, Video } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
+/** Listings live in Postgres — never query the DB at build time (Railway). */
+export const dynamic = "force-dynamic";
+
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
-
-export async function generateStaticParams() {
-  const slugs = await getAllListingSlugs();
-  return slugs.map((slug) => ({ slug }));
-}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;

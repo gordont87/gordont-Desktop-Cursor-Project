@@ -3,6 +3,8 @@ import { RentalsExplorer } from "@/components/rentals/RentalsExplorer";
 import { getPublicListings } from "@/lib/listings";
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Available Rentals",
   description:

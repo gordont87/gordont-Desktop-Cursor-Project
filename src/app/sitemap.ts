@@ -61,7 +61,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: path === "" ? 1 : path.startsWith("/rentals") ? 0.9 : 0.7,
   }));
 
-  const slugs = await getAllListingSlugs();
+  let slugs: string[] = [];
+  try {
+    slugs = await getAllListingSlugs();
+  } catch {
+    // Build / offline DB — omit listing URLs until runtime regeneration
+  }
   const listingPages = slugs.map((slug) => ({
     url: `${baseUrl}/rentals/${slug}`,
     lastModified: now,

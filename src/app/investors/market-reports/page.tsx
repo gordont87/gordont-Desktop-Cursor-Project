@@ -8,6 +8,8 @@ import { getDemandSignals } from "@/lib/market-demand";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Investor Market Reports",
   description:

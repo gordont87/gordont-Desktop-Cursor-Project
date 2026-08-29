@@ -5,6 +5,8 @@ import { getPublicListings } from "@/lib/listings";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Schedule a Showing",
   description: "Request a showing for available rental listings. Fair Housing compliant inquiry form.",
